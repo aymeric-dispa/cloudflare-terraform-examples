@@ -1,7 +1,7 @@
 # remote-state-example
 
 ## Purpose 
-This repository demonstrates the use of the `terraform_remote_state` data source to enable cross-team collaboration in a Terraform-managed infrastructure. It outlines a strategy where multiple teams, each owning a separate repository and state file, can securely share and reference resources defined in those states. 
+This folder demonstrates the use of the `terraform_remote_state` data source to enable cross-team collaboration in a Terraform-managed infrastructure. It outlines a strategy where multiple teams, each owning a separate repository and state file, can securely share and reference resources defined in those states. 
 This pattern can be used to facilitate cross-team collaboration, and should be used with a remote state backend.
 
 ## 🛠️ Prerequisites / Tools Used
