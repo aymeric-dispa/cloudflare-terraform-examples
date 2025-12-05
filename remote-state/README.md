@@ -10,8 +10,12 @@ This pattern can be used to facilitate cross-team collaboration, and should be u
 * **Cloudflare Provider:** V5
 
 
-## Goal
+## End Goal
 The objective of this solution is to establish a secure and collaborative workflow that allows multiple teams to contribute to a shared infrastructure, specifically by enabling **decoupled ruleset management** in Cloudflare WAF.
+
+In this example, we will:
+- Create a Cloudflare Ruleset in one repository and output its ID to a state file.
+- Use `terraform_remote_state` to fetch and reference that ID from another repository/state.
 
 ### 🌐 Scenario: Network and Application Team Separation
 
