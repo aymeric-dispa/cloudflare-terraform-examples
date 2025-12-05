@@ -27,10 +27,12 @@ The goal is to allow teams to work in isolation while maintaining a unified secu
 
 ### Result
 ![WAF list](images/WAF-list.png)<br/>
-As you can see in the screenshot above, once everything is implemented and tf files are applied, we will have 2 rulesets in the WAF account: One ruleset managed by the Network team, and one ruleset managed by the app team. You can see the network team repo as being a consumer of the ruleset defined in the App Team repo.
+This a screenshot of the Cloudflare Dashboard of the account WAF ruleset after our change.
+As you can see, once everything is implemented and tf files are applied, we will have 2 rulesets in the WAF account: One ruleset managed by the Network team, and one ruleset managed by the app team. 
+You can see the network team repo as being a consumer of the ruleset defined in the App Team repo. Clicking on the second item of the list will lead to the following screen.
 
 ![App rulset](images/app-ruleset.png)<br/>
-The screenshot shows the ruleset defined by the App team. It is the second item in the list showed in the first screenshot. The rules are managed by the app team, whilst the expression (e.g. hostname = my.app.come) is managed by the Network team, allowing the App team to work in isolation and preventing them from interfering with other hosts and application.
+The screenshot shows the ruleset defined by the App team. The rules are managed by the app team, whilst the expression (e.g. hostname = my.app.come) is managed by the Network team, allowing the App team to work in isolation and preventing them from interfering with other hosts and application.
 
 ## 🚀 Step-by-Step Implementation
 
