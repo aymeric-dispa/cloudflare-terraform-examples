@@ -26,10 +26,10 @@ The goal is to allow teams to work in isolation while maintaining a unified secu
 ---
 
 ### Result
-![WAF list](images/WAF-list.png)
+![WAF list](images/WAF-list.png)<br/>
 As you can see in the screenshot above, once everything is implemented and tf files are applied, we will have 2 rulesets in the WAF account: One ruleset managed by the Network team, and one ruleset managed by the app team. You can see the network team repo as being a consumer of the ruleset defined in the App Team repo.
 
-![App rulset](images/app-ruleset.png)
+![App rulset](images/app-ruleset.png)<br/>
 The screenshot shows the ruleset defined by the App team. It is the second item in the list showed in the first screenshot. The rules are managed by the app team, whilst the expression (e.g. hostname = my.app.come) is managed by the Network team, allowing the App team to work in isolation and preventing them from interfering with other hosts and application.
 
 ## 🚀 Step-by-Step Implementation
@@ -281,7 +281,7 @@ Once configured, the Cloudflare WAF will contain a modular ruleset structure.
 
 ### FAQ
 
-- What happens if the app team tries to delete (destroy) a ruleset that is referenced by the network team ?
+- What happens if the app team tries to delete (destroy) a ruleset that is referenced by the network team ?<br/>
 `terraform apply` will fail, as demonstrated below:
 
 ````text
@@ -303,7 +303,7 @@ cloudflare_ruleset.my_app: Destroying... [id=92b0add4db7946d0b945d41eba7e6ac4]
 │ }
 ````
 
-- What happens if the app team changes their ruleset ? Will the Network team need to do anything for the change to be applied ?
+- What happens if the app team changes their ruleset ? Will the Network team need to do anything for the change to be applied ?<br/>
 The change will be applied as soon as the App team runs `terraform apply`.
 The Network team is referencing the ruleset via its id, not its content directly - so not change is required.
 
