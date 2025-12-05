@@ -3,6 +3,7 @@
 Welcome to this repository! 
 This project serves as a collection of practical Terraform implementations and architectural patterns.
 The goal is to provide ready-to-use examples that demonstrate how to solve common infrastructure challenges.
+
 💡 Note: Infrastructure is rarely "one size fits all." Every use case is unique. However, if one of these examples helps you solve a specific problem or accelerates your development process, then this repository has served its purpose.
 
 ## 📂 Available Examples
