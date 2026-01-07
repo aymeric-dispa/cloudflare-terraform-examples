@@ -354,11 +354,11 @@ output "ruleset_app_zone_id" {
 }
 ```
 
-#### 2. Apply the ruleset
+#### 2. Apply the change
 
-terraform apply
+`terraform apply`
 
-#### 3. Use the ruleset (in the ocnsumer repo)
+#### 3. Use the ruleset (in the consumer repo)
 
 See the kind 'zone', which is the entry point ruleset.
 
@@ -408,7 +408,11 @@ data "terraform_remote_state" "my_app_state" {
 }
 ```
 
-#### 4. Result
+#### 4. Apply the change
+
+`terraform apply`
+
+#### 5. Result
 As explained in the [doc](https://developers.cloudflare.com/waf/custom-rules/custom-rulesets/), Currently, the Cloudflare dashboard does not support working with custom rulesets at the zone level. You will need to use the Cloudflare API to configure or deploy these rulesets.
 Find below the result when looking at the dashboard:
 ![Security Rules - zone level](images/security-rules.png)
