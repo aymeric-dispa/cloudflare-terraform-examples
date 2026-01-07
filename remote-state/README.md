@@ -322,7 +322,7 @@ Ensure that only authorized workspaces are granted state access.
 There are other (and potentially more secure) ways to share state information between workspaces, depending on the use case and tools/configuration, as explained [here](https://developer.hashicorp.com/terraform/language/state/remote-state-data).
 
 ## 🚀 Step-by-Step Implementation - Zone Level
-This short section is shows how to implement a similar solution at the zone level. It is very similar (hence why the section is a lot shorter).
+This short section shows how to implement a similar solution at the zone level. It is very similar (hence why the section is a lot shorter).
 
 #### 1. Create a custom ruleset that will be reused.
 This ruleset would typically be added to your App team repo.
