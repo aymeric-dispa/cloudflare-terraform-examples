@@ -14,8 +14,9 @@ This pattern can be used to facilitate cross-team collaboration, and should be u
 The objective of this solution is to establish a secure and collaborative workflow that allows multiple teams to contribute to a shared infrastructure, specifically by enabling **decoupled ruleset management** in Cloudflare WAF.
 
 In this example, we will:
-- Create a Cloudflare Ruleset in one repository and output its ID to a state file.
+- Create Cloudflare Rulesets in one repository and output its ID to a state file.
 - Use `terraform_remote_state` to fetch and reference that ID from another repository/state.
+- Add custom rulesets at the account level and zone level. The solution at the zone level is at the bottom of this README.
 
 ### 🌐 Scenario: Network and Application Team Separation
 
@@ -41,7 +42,7 @@ You can see the network team repo as being a consumer of the ruleset defined in 
 ![App rulset](images/app-ruleset.png)<br/>
 The screenshot shows the ruleset defined by the App team. The rules are managed by the app team, whilst the expression (e.g. hostname = my.app.come) is managed by the Network team, allowing the App team to work in isolation and preventing them from interfering with other hosts and application.
 
-## 🚀 Step-by-Step Implementation
+## 🚀 Step-by-Step Implementation - Account Level
 
 ### Phase 1: App Team
 #### 1. Create a ruleset. 
@@ -319,3 +320,197 @@ The Network team is referencing the ruleset via its id, not its content directly
 ### Other Considerations
 Ensure that only authorized workspaces are granted state access.
 There are other (and potentially more secure) ways to share state information between workspaces, depending on the use case and tools/configuration, as explained [here](https://developer.hashicorp.com/terraform/language/state/remote-state-data).
+
+## 🚀 Step-by-Step Implementation - Zone Level
+This short section shows how to implement a similar solution at the zone level. It is very similar (hence why the section is a lot shorter).
+
+#### 1. Create a custom ruleset that will be reused.
+This ruleset would typically be added to your App team repo.
+
+The following custom ruleset will only get created but it will still need to be added to an entry point ruleset (a ruleset of kind zone or root) in order to have it deployed to a phase.
+See more information [here](https://developers.cloudflare.com/ruleset-engine/about/rulesets/#entry-point-ruleset). 
+
+
+```hcl
+## Example at the zone level
+resource "cloudflare_ruleset" "my_app_zone_sub" {
+  zone_id = "5143a1b2f9f02ac700c4e6912abfe763"
+  name    = "My app ruleset - zone - from App team"
+  kind    = "custom"
+  phase   = "http_request_firewall_custom"
+
+  rules = [
+    {
+      action      = "block"
+      description = "My App rule - from App team"
+      ref         = "block_pet_ventor_agent"
+      expression  = "(http.user_agent eq \"Pet-vendor-sub\")"
+    }
+  ]
+}
+
+output "ruleset_app_zone_id" {
+  value = cloudflare_ruleset.my_app_zone_sub.id
+}
+```
+
+#### 2. Apply the change
+
+`terraform apply`
+
+#### 3. Use the ruleset (in the consumer repo)
+
+See the kind 'zone', which is the entry point ruleset.
+
+
+```hcl
+resource "cloudflare_ruleset" "zone" {
+  zone_id = "5143a1b2f9f02ac700c4e6912abfe763"
+  name       = "My app ruleset - zone - main repo"
+  kind       = "zone"
+  phase      = "http_request_firewall_custom"
+
+  rules = [
+    {
+      action      = "execute"
+      expression  = "true"
+      description = "App Team Ruleset"
+      action_parameters = {
+        id = data.terraform_remote_state.my_app_state.outputs.ruleset_app_zone_id
+      }
+    },
+    {
+      action = "skip"
+      action_parameters = {
+        ruleset = "current"
+      }
+      description = "Allow Partner Payment Gateway"
+      ref = "allow_partner_payment_gateway"
+      expression  = "(ip.src eq 192.0.2.3)" 
+    },
+    {
+      action      = "block"
+      description = "Block Agent"
+      ref = "block_pet_ventor_agent"
+      expression  = "(http.user_agent eq \"Pet-vendor-main\")"
+    }
+  ]
+}
+
+data "terraform_remote_state" "my_app_state" {
+  backend = "remote"
+  config = {
+    organization = "Aymeric-website"
+    workspaces = {
+      name = "aymeric-website-terraform-my-app"
+    }
+  }
+}
+```
+
+#### 4. Apply the change
+
+`terraform apply`
+
+#### 5. Result
+As explained in the [doc](https://developers.cloudflare.com/waf/custom-rules/custom-rulesets/), Currently, the Cloudflare dashboard does not support working with custom rulesets at the zone level. You will need to use the Cloudflare API to configure or deploy these rulesets.
+Find below the result when looking at the dashboard:
+![Security Rules - zone level](images/security-rules.png)
+As you can see, we can see the ruleset description but we cannot see the individuals rules etc.
+
+Find below the result when calling the [API](https://developers.cloudflare.com/api/resources/rulesets/), which gives a lot more information about the ruleset deployed
+
+Entry point ruleset:
+```json
+{
+	"result": {
+		"description": "",
+		"id": "e0ed9274cf9f4a69bd1752bfddd23fcd",
+		"kind": "zone",
+		"last_updated": "2026-01-07T15:43:11.852761Z",
+		"name": "My app ruleset - zone - main repo",
+		"phase": "http_request_firewall_custom",
+		"rules": [
+			{
+				"action": "execute",
+				"action_parameters": {
+					"id": "ea35b0e0f95f4f42810e4b3d4959313f",
+					"version": "latest"
+				},
+				"description": "App Team Ruleset",
+				"enabled": true,
+				"expression": "true",
+				"id": "9131b971bb6e4dc2805698a4946089df",
+				"last_updated": "2026-01-07T15:43:11.852761Z",
+				"ref": "9131b971bb6e4dc2805698a4946089df",
+				"version": "1"
+			},
+			{
+				"action": "skip",
+				"action_parameters": {
+					"ruleset": "current"
+				},
+				"description": "Allow Partner Payment Gateway",
+				"enabled": true,
+				"expression": "(ip.src eq 192.0.2.3)",
+				"id": "a7a12bc4dbe64c329c38c446373130da",
+				"last_updated": "2026-01-07T12:50:39.260759Z",
+				"logging": {
+					"enabled": true
+				},
+				"ref": "allow_partner_payment_gateway",
+				"version": "1"
+			},
+			{
+				"action": "block",
+				"description": "Block Agent",
+				"enabled": true,
+				"expression": "(http.user_agent eq \"Pet-vendor-main\")",
+				"id": "6c2491f1c1e04dff8c0dd757f77acb8b",
+				"last_updated": "2026-01-07T12:50:39.260759Z",
+				"ref": "block_pet_ventor_agent",
+				"version": "1"
+			}
+		],
+		"source": "firewall_custom",
+		"version": "4"
+	},
+	"success": true,
+	"errors": [],
+	"messages": []
+}
+```
+
+App team custom ruleset:
+```json
+{
+	"result": {
+		"description": "",
+		"id": "ea35b0e0f95f4f42810e4b3d4959313f",
+		"kind": "custom",
+		"last_updated": "2026-01-07T15:57:31.927947Z",
+		"name": "My app ruleset - zone - from App team",
+		"phase": "http_request_firewall_custom",
+		"rules": [
+			{
+				"action": "block",
+				"description": "My App rule - from App team",
+				"enabled": true,
+				"expression": "(http.user_agent eq \"Pet-vendor-sub\")",
+				"id": "b8c22b4f40a648ff9d208a54fa807bd2",
+				"last_updated": "2026-01-07T13:01:45.628423Z",
+				"ref": "block_pet_ventor_agent",
+				"version": "2"
+			}
+		],
+		"source": "firewall_custom",
+		"version": "3"
+	},
+	"success": true,
+	"errors": [],
+	"messages": []
+}
+```
+
+And to prove that my rules are being taken into account, see below an example of a trace with the header
+` "User-Agent": "Pet-vendor-sub" `. ![trace-result](images/trace-result.png).
