@@ -409,9 +409,14 @@ data "terraform_remote_state" "my_app_state" {
 ```
 
 #### 4. Result
-As explained in the (doc)[https://developers.cloudflare.com/waf/custom-rules/custom-rulesets/], Currently, the Cloudflare dashboard does not support working with custom rulesets at the zone level. You will need to use the Cloudflare API to configure or deploy these rulesets.
-Find below a screenshot of the result when calling the (API)[https://developers.cloudflare.com/api/resources/rulesets/]
+As explained in the [doc](https://developers.cloudflare.com/waf/custom-rules/custom-rulesets/), Currently, the Cloudflare dashboard does not support working with custom rulesets at the zone level. You will need to use the Cloudflare API to configure or deploy these rulesets.
+Find below the result when looking at the dashboard:
+![Security Rules - zone level](images/security-rules.png)
+As you can see, we can see the ruleset description but we cannot see the individuals rules etc.
 
+Find below the result when calling the [API](https://developers.cloudflare.com/api/resources/rulesets/), which gives a lot more information about the ruleset deployed
+
+Entry point ruleset:
 ```json
 {
 	"result": {
@@ -471,5 +476,37 @@ Find below a screenshot of the result when calling the (API)[https://developers.
 	"messages": []
 }
 ```
+
+App team custom ruleset:
+```json
+{
+	"result": {
+		"description": "",
+		"id": "ea35b0e0f95f4f42810e4b3d4959313f",
+		"kind": "custom",
+		"last_updated": "2026-01-07T15:57:31.927947Z",
+		"name": "My app ruleset - zone - from App team",
+		"phase": "http_request_firewall_custom",
+		"rules": [
+			{
+				"action": "block",
+				"description": "My App rule - from App team",
+				"enabled": true,
+				"expression": "(http.user_agent eq \"Pet-vendor-sub\")",
+				"id": "b8c22b4f40a648ff9d208a54fa807bd2",
+				"last_updated": "2026-01-07T13:01:45.628423Z",
+				"ref": "block_pet_ventor_agent",
+				"version": "2"
+			}
+		],
+		"source": "firewall_custom",
+		"version": "3"
+	},
+	"success": true,
+	"errors": [],
+	"messages": []
+}
+```
+
 And to prove that my rules are being taken into account, see below an example of a trace with the header
-` "User-Agent": "Pet-vendor-sub" `. ![trace-result](trace-result.png).
+` "User-Agent": "Pet-vendor-sub" `. ![trace-result](images/trace-result.png).
