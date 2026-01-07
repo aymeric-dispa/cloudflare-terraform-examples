@@ -364,37 +364,39 @@ See the kind 'zone', which is the entry point ruleset.
 
 
 ```hcl
-resource "cloudflare_ruleset" "zone" {
-  zone_id = "5143a1b2f9f02ac700c4e6912abfe763"
-  name       = "My app ruleset - zone - main repo"
-  kind       = "zone"
-  phase      = "http_request_firewall_custom"
-
-  rules = [
-    {
-      action      = "execute"
-      expression  = "true"
-      description = "App Team Ruleset"
-      action_parameters = {
-        id = data.terraform_remote_state.my_app_state.outputs.ruleset_app_zone_id
-      }
-    },
+locals {
+  common_rules = [
     {
       action = "skip"
       action_parameters = {
         ruleset = "current"
       }
       description = "Allow Partner Payment Gateway"
-      ref = "allow_partner_payment_gateway"
-      expression  = "(ip.src eq 192.0.2.3)" 
+      ref         = "allow_partner_payment_gateway"
+      expression  = "(ip.src eq 192.0.2.3)"
     },
     {
       action      = "block"
       description = "Block Agent"
-      ref = "block_pet_ventor_agent"
+      ref         = "block_pet_ventor_agent"
       expression  = "(http.user_agent eq \"Pet-vendor-main\")"
     }
   ]
+}
+
+resource "cloudflare_ruleset" "zone" {
+  zone_id = "5143a1b2f9f02ac700c4e6912abfe763"
+  name    = "My app ruleset - zone - main repo"
+  kind    = "zone"
+  phase   = "http_request_firewall_custom"
+  rules = concat([{
+    action      = "execute"
+    expression  = "true"
+    description = "App Team Ruleset"
+    action_parameters = {
+      id = data.terraform_remote_state.my_app_state.outputs.ruleset_app_zone_id
+    }
+  }], local.common_rules)
 }
 
 data "terraform_remote_state" "my_app_state" {
