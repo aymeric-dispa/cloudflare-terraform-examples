@@ -20,12 +20,11 @@ graph LR
         end
     end
 
-    subgraph RTA ["Repo team A"]
-        R1["Ruleset 1"]:::tealNode
-    end
-
     subgraph RTB ["Repo team B"]
         R2["Ruleset 2"]:::tealNode
+    end
+        subgraph RTA ["Repo team A"]
+        R1["Ruleset 1"]:::tealNode
     end
 
     %% Define links
