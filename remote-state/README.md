@@ -4,6 +4,51 @@
 This folder demonstrates the use of the `terraform_remote_state` data source to enable cross-team collaboration in a Terraform-managed infrastructure. It outlines a strategy where multiple teams, each owning a separate repository and state file, can securely share and reference resources defined in those states. 
 This pattern can be used to facilitate cross-team collaboration, and should be used with a remote state backend.
 
+```mermaid
+graph LR
+    subgraph RNT ["Repo Network team"]
+        direction TB
+        subgraph EP1 ["Entry Point Ruleset 1"]
+            direction TB
+            R_ID1["Ruleset id"]:::tealNode
+            OR1["Other rules"]:::orangeNode
+        end
+        subgraph EP2 ["Entry Point Ruleset 2"]
+            direction TB
+            R_ID2["Ruleset id"]:::tealNode
+            OR2["Other rules"]:::orangeNode
+        end
+    end
+
+    subgraph RTA ["Repo team A"]
+        R1["Ruleset 1"]:::tealNode
+    end
+
+    subgraph RTB ["Repo team B"]
+        R2["Ruleset 2"]:::tealNode
+    end
+
+    %% Define links
+    R_ID1 --> R1
+    R_ID2 --> R2
+
+    %% Change color and width of the arrows using linkStyle by index
+    linkStyle 0 stroke:#555555,stroke-width:2px;
+    linkStyle 1 stroke:#555555,stroke-width:2px;
+
+    %% Define node colors
+    classDef tealNode fill:#408F9C,stroke:#333,stroke-width:1px,color:white;
+    classDef orangeNode fill:#F4B05C,stroke:#333,stroke-width:1px,color:black;
+    
+    %% Define subgraph colors
+    style RNT fill:#F2C9C9,stroke:#333,stroke-width:1px,color:black;
+    style EP1 fill:#D3D3D3,stroke:#333,stroke-width:1px,color:black;
+    style EP2 fill:#D3D3D3,stroke:#333,stroke-width:1px,color:black;
+    style RTA fill:#D9EAD3,stroke:#333,stroke-width:1px,color:black;
+    style RTB fill:#D9EAD3,stroke:#333,stroke-width:1px,color:black;
+```
+
+
 ## 🛠️ Prerequisites / Tools Used
 
 * **Terraform Backend:** Terraform Cloud (or equivalent remote backend supporting `remote` data source access).
