@@ -64,7 +64,7 @@ In this example, we will:
 
 ### 🌐 Scenario: Network and Application Team Separation
 
-The goal is to allow teams to work in isolation while maintaining a unified security posture.
+The goal is to allow teams to work in isolation while maintaining a unified security posture. 
 
 | Role                    | Team             | Responsibility                                                                                                                                 | Terraform Role               |
 | :---------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
@@ -332,6 +332,13 @@ Once configured, the Cloudflare WAF will contain a modular ruleset structure.
 1. The WAF Ruleset List The Network Team's repository acts as the parent container, while the App Team's repository acts as a plug-in.
 
 2. The App Ruleset Details The specific rules (Payment Gateway, User Agent) are managed by the App Team, but the context in which they run (the hostname) is controlled by the Network Team.
+
+### Considerations
+With this architecture, both the Network Team and App Team pipelines require a Cloudflare API Token with permissions to edit Account-Level Rulesets.
+
+While the Terraform configuration separates resources logically, the API token used by the App Team's pipeline technically possesses the privileges to modify or delete other rulesets in the account (including the Root Ruleset) if misused.
+
+Strict CI/CD controls should be put in place to avoid this type of issues (e.g. pull requests reviews and status checks, [Terraform OPA](https://www.openpolicyagent.org/docs/terraform), etc).
 
 ### FAQ
 
